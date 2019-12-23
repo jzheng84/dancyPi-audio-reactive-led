@@ -19,9 +19,9 @@ _fps = dsp.ExpFilter(val=config.FPS, alpha_decay=0.2, alpha_rise=0.2)
 
 parser = argparse.ArgumentParser()
 # Make these params in scope for the entire file.
-parser.add_argument("vis_type", default="scroll", help="Visualization effect. Can be 'spectrum', 'energy', or 'scroll'.", type=str)
-parser.add_argument("min_hz", default=200, help="Low pass filter. Filter out frequencies lower than min_hz.", type=int)
-parser.add_argument("max_hz", default=12000, help="High pass filter. Filter out frequencies higher than max_hz.", type=int)
+parser.add_argument("--vis_type", default="scroll", help="Visualization effect. Can be 'spectrum', 'energy', or 'scroll'.", type=str)
+parser.add_argument("--min_hz", default=200, help="Low pass filter. Filter out frequencies lower than min_hz.", type=int)
+parser.add_argument("--max_hz", default=12000, help="High pass filter. Filter out frequencies higher than max_hz.", type=int)
 
 
 def frames_per_second():
