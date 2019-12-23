@@ -1,5 +1,6 @@
 from __future__ import print_function
 from __future__ import division
+import argparse
 import time
 import numpy as np
 from scipy.ndimage.filters import gaussian_filter1d
@@ -9,13 +10,18 @@ import dsp
 import led
 import sys
 
-visType = sys.argv[1]
-
 _time_prev = time.time() * 1000.0
 """The previous time that the frames_per_second() function was called"""
 
 _fps = dsp.ExpFilter(val=config.FPS, alpha_decay=0.2, alpha_rise=0.2)
 """The low-pass filter used to estimate frames-per-second"""
+
+
+parser = argparse.ArgumentParser()
+# Make these params in scope for the entire file.
+parser.add_argument("vis_type", default="scroll", help="Visualization effect. Can be 'spectrum', 'energy', or 'scroll'.", type=str)
+parser.add_argument("min_hz", default=200, help="Low pass filter. Filter out frequencies lower than min_hz.", type=int)
+parser.add_argument("max_hz", default=12000, help="High pass filter. Filter out frequencies higher than max_hz.", type=int)
 
 
 def frames_per_second():
@@ -251,22 +257,26 @@ samples_per_frame = int(config.MIC_RATE / config.FPS)
 # Array containing the rolling audio sample window
 y_roll = np.random.rand(config.N_ROLLING_HISTORY, samples_per_frame) / 1e16
 
-#visualization_effect = visualize_spectrum
-
-if sys.argv[1] == "spectrum":
-        visType = visualize_spectrum
-elif sys.argv[1] == "energy":
-        visType = visualize_energy
-elif  sys.argv[1] == "scroll":
-        visType = visualize_scroll
-else:
-        visType = visualize_spectrum
-
-visualization_effect = visType
-"""Visualization effect to display on the LED strip"""
-
 
 if __name__ == '__main__':
+    # Parse arguments.
+    args = parser.parse_args()
+    # Visualization effect to display on the LED strip
+    vis_type = args.vis_type
+    if vis_type == "spectrum":
+        visualization_effect = visualize_spectrum
+    elif vis_type == "energy":
+        visualization_effect = visualize_energy
+    elif vis_type == "scroll":
+        visualization_effect = visualize_scroll
+    else:
+        visualization_effect = visualize_spectrum
+
+    # Low pass and high pass filters.
+    config.MIN_FREQUENCY = args.min_hz
+    config.MAX_FREQUENCY = args.max_hz
+    dsp.create_mel_bank()
+
     if config.USE_GUI:
         import pyqtgraph as pg
         from pyqtgraph.Qt import QtGui, QtCore
@@ -364,6 +374,7 @@ if __name__ == '__main__':
         layout.addItem(energy_label)
         layout.addItem(scroll_label)
         layout.addItem(spectrum_label)
+
     # Initialize LEDs
     led.update()
     # Start listening to live audio stream
