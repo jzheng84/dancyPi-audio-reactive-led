@@ -106,7 +106,8 @@ common_mode = dsp.ExpFilter(np.tile(0.01, config.N_PIXELS // 2),
                        alpha_decay=0.99, alpha_rise=0.01)
 p_filt = dsp.ExpFilter(np.tile(1, (3, config.N_PIXELS // 2)),
                        alpha_decay=0.1, alpha_rise=0.99)
-p = np.tile(1.0, (3, config.N_PIXELS // 2))
+#p = np.tile(1.0, (3, config.N_PIXELS // 2))
+p = np.tile(1.0, (3, config.N_PIXELS))
 gain = dsp.ExpFilter(np.tile(0.01, config.N_FFT_BINS),
                      alpha_decay=0.001, alpha_rise=0.99)
 
@@ -123,6 +124,7 @@ def visualize_scroll(y):
     b = int(np.max(y[2 * len(y) // 3:]))
     # Scrolling effect window
     p[:, 1:] = p[:, :-1]
+    #p[:, :-1] = p[:, 1:]
     p *= 0.98
     p = gaussian_filter1d(p, sigma=0.2)
     # Create new color originating at the center
@@ -130,7 +132,8 @@ def visualize_scroll(y):
     p[1, 0] = g
     p[2, 0] = b
     # Update the LED strip
-    return np.concatenate((p[:, ::-1], p), axis=1)
+    #return np.concatenate((p[:, ::-1], p), axis=1)
+    return np.concatenate((p[:, ::1], p), axis=1)
 
 
 def visualize_energy(y):
